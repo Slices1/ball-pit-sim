@@ -7,6 +7,7 @@ struct Ball {
     radius: f32,
     position: Vec2,
     velocity: Vec2,
+    colour: Color,
 }
 
 fn spawn_ball(position: Vec2, balls: &mut Vec<Ball>) {
@@ -15,6 +16,7 @@ fn spawn_ball(position: Vec2, balls: &mut Vec<Ball>) {
         radius: rand::gen_range(15., 22.),
         position: position,
         velocity: Vec2{x:0.,y:0.},
+        colour: WHITE,
     });
 }
 
@@ -63,6 +65,17 @@ fn ball_to_ball_collision(ball_1: &mut Ball, ball_2: &mut Ball, c: f32) {
     ball_2.position += -line_of_centres*magnitude/2.;
 }
 
+pub fn random_pastel() -> Color {
+
+    // Generate pastel colors (light colors with high values)
+    let r = rand::gen_range(0.6, 1.);
+    let g = rand::gen_range(0.6, 1.);
+    let b = rand::gen_range(0.6, 1.);
+
+    // The alpha value is typically 1.0 for full opacity
+    return Color::new(r, g, b, 1.0);
+}
+
 #[macroquad::main("Ball Pit Sim in Rust")]
 async fn main() {
     let mut balls: Vec<Ball> = Vec::new();
@@ -76,6 +89,12 @@ async fn main() {
             spawn_ball(Vec2{x:30. + 22.*(i as f32),y:30. + 22.*(j as f32)}, &mut balls);
         }
     }
+
+    // colour them
+    for ball in &mut balls {
+        ball.colour = random_pastel();
+    }
+
     loop {
         clear_background(GRAY);
         //spawn
@@ -139,7 +158,7 @@ async fn main() {
 
         //draw
         for ball in balls.clone().into_iter() {
-            draw_circle(ball.position.x, ball.position.y, ball.radius, WHITE);
+            draw_circle(ball.position.x, ball.position.y, ball.radius, ball.colour);
         }
         next_frame().await
     }
